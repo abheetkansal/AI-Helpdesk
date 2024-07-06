@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UBC Admissions Chatbot</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="chat-container">
+        <div id="chatbox">
+            <div id="messages"></div>
+        </div>
+        <input type="text" id="user-input" placeholder="Type your message here...">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <script>
+        function sendMessage() {
+            const userInput = document.getElementById("user-input").value;
+            if (userInput) {
+                const messagesDiv = document.getElementById("messages");
+                const userMessageDiv = document.createElement("div");
+                userMessageDiv.className = "user-message";
+                userMessageDiv.textContent = userInput;
+                messagesDiv.appendChild(userMessageDiv);
+                
+                fetch("/get_response", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ message: userInput })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const botMessageDiv = document.createElement("div");
+                    botMessageDiv.className = "bot-message";
+                    botMessageDiv.textContent = data.response;
+                    messagesDiv.appendChild(botMessageDiv);
+                    document.getElementById("user-input").value = "";
+                })
+                .catch(error => console.error("Error:", error));
+            }
+        }
+    </script>
+</body>
+</html>
